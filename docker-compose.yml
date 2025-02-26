@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - HOST=0.0.0.0
+      - MONGODB_URI=mongodb://mongo:27017/content-calendar
+      - LOG_LEVEL=debug
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+      - FRONTEND_URL=http://localhost:3000
+    volumes:
+      - ./src:/app/src
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+    depends_on:
+      - mongo
+    command: npm run dev
+    restart: unless-stopped
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=content-calendar
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+    driver: local 
