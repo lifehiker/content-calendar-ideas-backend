@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import type { FastifyMongoObject, FastifyMongoNestedObject } from '@fastify/mongodb';
 
 // Clerk webhook interface (simplified since we're not using the full Clerk webhook functionality yet)
 interface ClerkWebhookEvent {
@@ -31,12 +32,12 @@ declare module 'fastify' {
   
   interface FastifyInstance {
     authenticate: any;  // Function for authentication
-    mongo: any;  // MongoDB plugin
+    // Using the proper type for mongo from @fastify/mongodb
   }
 }
 
 export default async function userRoutes(fastify: FastifyInstance) {
-  // Skip if MongoDB is not available
+  // Skip if MongoDB plugin is not available
   if (!fastify.mongo) {
     fastify.log.error('MongoDB plugin not registered. Skipping user routes that require database access.');
     return;
@@ -64,7 +65,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         }
         
         // Get the user document from database
-        const user = await fastify.mongo.db.collection('users').findOne({ clerkId: userId });
+        const user = await fastify.mongo.db!.collection('users').findOne({ clerkId: userId });
         
         if (!user) {
           // If user doesn't exist, they're not premium and have default free searches
@@ -131,7 +132,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         }
         
         // Update the user's subscription info
-        await fastify.mongo.db.collection('users').updateOne(
+        await fastify.mongo.db!.collection('users').updateOne(
           { clerkId: userId },
           {
             $set: {
@@ -177,7 +178,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         }
         
         // Get the user from the database
-        const user = await fastify.mongo.db.collection('users').findOne({ clerkId: userId });
+        const user = await fastify.mongo.db!.collection('users').findOne({ clerkId: userId });
         
         // If the user is premium, no need to increment search count
         if (user?.isPremium) {
@@ -214,7 +215,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         }
         
         // Increment the search count
-        await fastify.mongo.db.collection('users').updateOne(
+        await fastify.mongo.db!.collection('users').updateOne(
           { clerkId: userId },
           {
             $set: {

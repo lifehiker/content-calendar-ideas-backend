@@ -46,7 +46,7 @@ export default async function stripeWebhooksRoutes(fastify: FastifyInstance) {
             
             if (userId) {
               // Update user's subscription status in your database
-              await fastify.mongo.db.collection('users').updateOne(
+              await fastify.mongo.db!.collection('users').updateOne(
                 { clerkId: userId },
                 { 
                   $set: { 
@@ -76,13 +76,13 @@ export default async function stripeWebhooksRoutes(fastify: FastifyInstance) {
             const customerId = subscription.customer as string;
             
             // Find the user with this customer ID
-            const user = await fastify.mongo.db.collection('users').findOne({
+            const user = await fastify.mongo.db!.collection('users').findOne({
               customerId
             });
             
             if (user) {
               // Update the subscription status based on the status from Stripe
-              await fastify.mongo.db.collection('users').updateOne(
+              await fastify.mongo.db!.collection('users').updateOne(
                 { customerId },
                 { 
                   $set: { 
@@ -104,7 +104,7 @@ export default async function stripeWebhooksRoutes(fastify: FastifyInstance) {
             const customerId = subscription.customer as string;
             
             // Find and update the user with this subscription ID
-            await fastify.mongo.db.collection('users').updateOne(
+            await fastify.mongo.db!.collection('users').updateOne(
               { customerId },
               { 
                 $set: { 
