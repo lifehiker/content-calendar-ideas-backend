@@ -5,6 +5,33 @@ export const userRoutes = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
+  // Define interface for user preferences
+  interface UserPreferences {
+    theme: 'light' | 'dark' | 'system';
+    contentStyle: 'casual' | 'professional';
+    calendarView: 'month' | 'week' | 'list';
+    defaultKeywordMode: 'exact' | 'balanced' | 'related';
+  }
+
+  // Define interface for user settings request
+  interface UpdateSettingsRequest {
+    preferences: UserPreferences;
+  }
+
+  // Define interface for calendar entries
+  interface CalendarEntry {
+    id: string;
+    title: string;
+    date: string;
+    format: string;
+    description: string;
+  }
+
+  // Define interface for calendar entries request
+  interface SaveCalendarRequest {
+    entries: CalendarEntry[];
+  }
+
   // Get user settings/preferences
   fastify.get('/user/settings', {
     preValidation: [verifyAuth],
@@ -42,11 +69,13 @@ export const userRoutes = async (
     schema: {
       body: {
         type: 'object',
+        required: ['preferences'],
         properties: {
           preferences: {
             type: 'object',
             properties: {
-              defaultStyle: { type: 'string', enum: ['casual', 'professional'] },
+              theme: { type: 'string', enum: ['light', 'dark', 'system'] },
+              contentStyle: { type: 'string', enum: ['casual', 'professional'] },
               calendarView: { type: 'string', enum: ['month', 'week', 'list'] },
               defaultKeywordMode: { type: 'string', enum: ['exact', 'balanced', 'related'] },
             },
@@ -57,7 +86,7 @@ export const userRoutes = async (
   }, async (request, reply) => {
     try {
       const userId = request.userId;
-      const { preferences } = request.body;
+      const { preferences } = request.body as UpdateSettingsRequest;
       
       // In a real implementation, you'd update settings in the database
       // For now, just return success
@@ -108,7 +137,7 @@ export const userRoutes = async (
   }, async (request, reply) => {
     try {
       const userId = request.userId;
-      const { entries } = request.body;
+      const { entries } = request.body as SaveCalendarRequest;
       
       // In a real implementation, you'd save entries to the database
       // For now, just return success

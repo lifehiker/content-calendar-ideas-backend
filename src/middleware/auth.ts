@@ -1,5 +1,13 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { clerkClient, ClerkAPIError } from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/clerk-sdk-node';
+
+// Extend FastifyRequest to include userId
+declare module 'fastify' {
+  interface FastifyRequest {
+    userId?: string;
+    isPremium?: boolean;
+  }
+}
 
 export const verifyAuth = async (request: FastifyRequest, reply: FastifyReply) => {
   try {
@@ -17,15 +25,15 @@ export const verifyAuth = async (request: FastifyRequest, reply: FastifyReply) =
     }
     
     try {
-      // Verify the session token with Clerk
-      const session = await clerkClient.sessions.verifyToken(token);
+      // Verify the session token with Clerk using the new API
+      const { userId } = await clerkClient.verifyToken(token);
       
-      if (!session) {
+      if (!userId) {
         return reply.status(401).send({ error: 'Unauthorized: Invalid token' });
       }
       
       // Attach user ID to request
-      request.userId = session.sub;
+      request.userId = userId;
       
     } catch (err) {
       if (err instanceof ClerkAPIError) {

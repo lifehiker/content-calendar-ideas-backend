@@ -6,6 +6,13 @@ export const contentRoutes = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
+  // Define types for request body
+  interface ContentRequest {
+    keywords: string;
+    days?: number;
+    style?: 'casual' | 'professional';
+  }
+
   // Schema for content generation request
   const generateContentSchema = {
     body: {
@@ -24,7 +31,7 @@ export const contentRoutes = async (
     schema: generateContentSchema,
   }, async (request, reply) => {
     try {
-      const { keywords, days, style } = request.body;
+      const { keywords, days, style } = request.body as ContentRequest;
       
       // In a real implementation, you'd check rate limits here
       // For free users, limit to 2 requests per day
@@ -63,7 +70,7 @@ export const contentRoutes = async (
     preValidation: [verifyAuth, verifyPremium], // Check auth and subscription
   }, async (request, reply) => {
     try {
-      const { keywords, days, style } = request.body;
+      const { keywords, days, style } = request.body as ContentRequest;
       
       // Generate premium content ideas
       const contentIdeas = await generateContentIdeas({

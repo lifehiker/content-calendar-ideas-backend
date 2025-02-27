@@ -87,7 +87,7 @@ export const generateContentIdeas = async ({
       
       // Fallback to Claude
       const claudeResponse = await claude.messages.create({
-        model: 'claude-3-5-sonnet-latest',
+        model: 'claude-3-7-sonnet-latest',
         max_tokens: 4000,
         temperature: 0.8,
         messages: [
@@ -99,7 +99,8 @@ export const generateContentIdeas = async ({
         system: CONTENT_SYSTEM_PROMPT,
       });
 
-      const content = claudeResponse.content[0]?.text || '';
+      // Update for new SDK - content is an array of content blocks
+      const content = claudeResponse.content.find(block => block.type === 'text')?.text || '';
       
       // Parse JSON from the response
       try {
