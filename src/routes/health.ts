@@ -4,6 +4,16 @@ export const healthRoutes = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
+  // Root endpoint for basic connectivity check
+  fastify.get('/', async (request, reply) => {
+    return {
+      status: 'ok',
+      message: 'Content Calendar Ideas API is running',
+      version: '1.0.0',
+      timestamp: new Date().toISOString()
+    };
+  });
+
   // Simple health check endpoint
   fastify.get('/health', async (request, reply) => {
     return {

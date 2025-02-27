@@ -15,7 +15,11 @@ import { healthRoutes } from './routes/health';
 // Server setup
 const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'https://contentcalendarideas.com';
+
+// Get CORS origins from environment
+const CORS_ORIGINS = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',') 
+  : ['https://contentcalendarideas.com', 'https://content-calendar-ideas-frontend-8jfz4.ondigitalocean.app'];
 
 const startServer = async () => {
   const server = Fastify({
@@ -24,9 +28,37 @@ const startServer = async () => {
 
   // Register CORS to allow requests from frontend
   await server.register(cors, {
-    origin: [FRONTEND_URL, 'http://localhost:3000'],
+    origin: CORS_ORIGINS,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
+  });
+
+  // Add a root route that redirects to the API health endpoint
+  server.get('/', async (request, reply) => {
+    return {
+      status: 'ok',
+      message: 'Content Calendar Ideas API is running',
+      endpoints: {
+        health: '/api/health',
+        status: '/api/status',
+        content: '/api/content',
+        user: '/api/user',
+        subscription: '/api/subscription'
+      },
+      version: '1.0.0',
+      timestamp: new Date().toISOString()
+    };
+  });
+
+  // Add a health route at the root level as well
+  server.get('/health', async (request, reply) => {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+      service: 'content-calendar-ideas-api',
+      uptime: process.uptime(),
+    };
   });
 
   // Register routes
