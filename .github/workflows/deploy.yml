@@ -1,0 +1,43 @@
+name: Deploy Backend to Digital Ocean App Platform
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20.x'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Build
+      run: npm run build
+      env:
+        NODE_ENV: production
+        LOG_LEVEL: info
+        PORT: 8000
+        
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        
+    - name: Deploy to Digital Ocean App Platform
+      run: |
+        # Get the app ID for content-calendar-ideas-backend
+        APP_ID=$(doctl apps list --format "ID,Spec.Name" --no-header | grep "content-calendar-ideas-backend" | awk '{print $1}')
+        if [ -z "$APP_ID" ]; then
+          echo "Error: Could not find app 'content-calendar-ideas-backend'"
+          exit 1
+        fi
+        echo "Deploying to app ID: $APP_ID"
+        doctl apps create-deployment $APP_ID 

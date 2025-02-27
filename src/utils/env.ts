@@ -42,7 +42,8 @@ const parseEnv = () => {
   try {
     return envSchema.parse(process.env);
   } catch (error) {
-    console.error('❌ Environment validation failed:', error.format());
+    console.error('❌ Environment validation failed:', 
+      error instanceof Error ? (error as any).format?.() || error.message : 'Unknown error');
     
     // Only exit in production, allow defaults in development
     if (process.env.NODE_ENV === 'production') {

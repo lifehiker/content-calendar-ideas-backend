@@ -110,7 +110,7 @@ export const integrationRoutes = async (
       return reply.status(500).send({
         status: 'error',
         message: 'Failed to export to ContentERP',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       });
     }
   });
@@ -140,7 +140,7 @@ export const integrationRoutes = async (
       return reply.status(500).send({
         status: 'error',
         message: 'Failed to check ContentERP integration status',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       });
     }
   });

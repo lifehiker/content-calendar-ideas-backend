@@ -6,6 +6,8 @@ import { contentRoutes } from './routes/content';
 import { userRoutes } from './routes/user';
 import { subscriptionRoutes } from './routes/subscription';
 import { integrationRoutes } from './routes/integration';
+import stripeWebhooksRoutes from './routes/stripe-webhooks';
+import usersRoutes from './routes/users';
 
 export const buildApp = async (): Promise<FastifyInstance> => {
   const app = Fastify({
@@ -21,6 +23,8 @@ export const buildApp = async (): Promise<FastifyInstance> => {
           }
         : undefined,
     },
+    // Enable raw body for stripe webhook validation
+    bodyLimit: 1048576, // 1MiB
   });
 
   // Register CORS to allow requests from the frontend
@@ -36,6 +40,10 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   await app.register(userRoutes);
   await app.register(subscriptionRoutes);
   await app.register(integrationRoutes);
+  
+  // Register new routes
+  await app.register(stripeWebhooksRoutes, { prefix: '/webhooks' });
+  await app.register(usersRoutes);
 
   // Global error handler
   app.setErrorHandler((error, request, reply) => {

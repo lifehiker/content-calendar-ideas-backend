@@ -96,7 +96,7 @@ export const subscriptionRoutes = async (
       return reply.status(500).send({
         status: 'error',
         message: 'Failed to create checkout session',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       });
     }
   });
@@ -129,7 +129,7 @@ export const subscriptionRoutes = async (
           endpointSecret
         );
       } catch (err) {
-        return reply.status(400).send(`Webhook Error: ${err.message}`);
+        return reply.status(400).send(`Webhook Error: ${(err as Error).message}`);
       }
       
       // Handle specific events
@@ -161,7 +161,7 @@ export const subscriptionRoutes = async (
       return reply.status(500).send({
         status: 'error',
         message: 'Failed to process webhook',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+        error: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined,
       });
     }
   });

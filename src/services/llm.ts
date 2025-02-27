@@ -100,7 +100,8 @@ export const generateContentIdeas = async ({
       });
 
       // Update for new SDK - content is an array of content blocks
-      const content = claudeResponse.content.find(block => block.type === 'text')?.text || '';
+      const contentBlock = claudeResponse.content.find(block => block.type === 'text');
+      const content = contentBlock && 'text' in contentBlock ? contentBlock.text : '';
       
       // Parse JSON from the response
       try {
