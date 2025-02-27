@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { generateContentIdeas } from '../services/llm';
 import { verifyAuth, verifyPremium } from '../middleware/auth';
+import { createErrorResponse } from '../utils/errors';
 
 export const contentRoutes = async (
   fastify: FastifyInstance,
@@ -31,7 +32,7 @@ export const contentRoutes = async (
     schema: generateContentSchema,
   }, async (request, reply) => {
     try {
-      const { keywords, days, style } = request.body as ContentRequest;
+      const { keywords, days = 30, style = 'casual' } = request.body as ContentRequest;
       
       // In a real implementation, you'd check rate limits here
       // For free users, limit to 2 requests per day
@@ -39,8 +40,8 @@ export const contentRoutes = async (
       // Generate content ideas
       const contentIdeas = await generateContentIdeas({
         keywords,
-        days: Math.min(days, 30), // Limit to 30 days for free users
-        style,
+        days: Math.min(days || 30, 30), // Limit to 30 days for free users, with fallback
+        style: style || 'casual',
         premium: false,
       });
       
@@ -56,11 +57,9 @@ export const contentRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to generate content ideas',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to generate content ideas')
+      );
     }
   });
 
@@ -70,13 +69,13 @@ export const contentRoutes = async (
     preValidation: [verifyAuth, verifyPremium], // Check auth and subscription
   }, async (request, reply) => {
     try {
-      const { keywords, days, style } = request.body as ContentRequest;
+      const { keywords, days = 30, style = 'casual' } = request.body as ContentRequest;
       
       // Generate premium content ideas
       const contentIdeas = await generateContentIdeas({
         keywords,
-        days: Math.min(days, 90), // Allow up to 90 days for premium
-        style,
+        days: Math.min(days || 30, 90), // Allow up to 90 days for premium, with fallback
+        style: style || 'casual',
         premium: true, // Premium quality
       });
       
@@ -90,11 +89,9 @@ export const contentRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to generate premium content ideas',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to generate premium content ideas')
+      );
     }
   });
 }; 

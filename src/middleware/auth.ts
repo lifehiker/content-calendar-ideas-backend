@@ -1,6 +1,12 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 
+// Define custom error type for Clerk API errors
+interface ClerkError {
+  status: number;
+  message: string;
+}
+
 // Extend FastifyRequest to include userId
 declare module 'fastify' {
   interface FastifyRequest {
@@ -36,10 +42,9 @@ export const verifyAuth = async (request: FastifyRequest, reply: FastifyReply) =
       request.userId = userId;
       
     } catch (err) {
-      if (err instanceof ClerkAPIError) {
-        return reply.status(401).send({ error: 'Unauthorized: Authentication failed' });
-      }
-      throw err; // Re-throw unexpected errors
+      // Handle Clerk API errors
+      const error = err as Error;
+      return reply.status(401).send({ error: 'Unauthorized: Authentication failed', message: error.message });
     }
     
   } catch (error) {

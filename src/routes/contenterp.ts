@@ -1,5 +1,6 @@
 import { FastifyInstance } from 'fastify';
 import { verifyAuth } from '../middleware/auth';
+import { createErrorResponse } from '../utils/errors';
 
 // ContentERP integration routes for handling content pushing and API integration
 export const contenterpRoutes = async (fastify: FastifyInstance) => {
@@ -19,18 +20,9 @@ export const contenterpRoutes = async (fastify: FastifyInstance) => {
         };
       } catch (error) {
         console.error('Error pushing content to ContentERP:', error);
-        
-        // Provide appropriate error messages based on environment
-        const isProduction = process.env.NODE_ENV === 'production';
-        
         return reply
           .code(500)
-          .send({
-            success: false,
-            message: isProduction
-              ? 'An error occurred while pushing content to ContentERP'
-              : `Error: ${error}`
-          });
+          .send(createErrorResponse(error, 'An error occurred while pushing content to ContentERP'));
       }
     }
   });
@@ -48,19 +40,9 @@ export const contenterpRoutes = async (fastify: FastifyInstance) => {
         };
       } catch (error) {
         console.error('Error checking ContentERP connection:', error);
-        
-        // Provide appropriate error messages based on environment
-        const isProduction = process.env.NODE_ENV === 'production';
-        
         return reply
           .code(500)
-          .send({
-            success: false,
-            connected: false,
-            message: isProduction
-              ? 'An error occurred while checking ContentERP connection'
-              : `Error: ${error}`
-          });
+          .send(createErrorResponse(error, 'An error occurred while checking ContentERP connection'));
       }
     }
   });

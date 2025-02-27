@@ -1,47 +1,52 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { verifyAuth } from '../middleware/auth';
 import Stripe from 'stripe';
+import { createErrorResponse } from '../utils/errors';
 
 // Initialize Stripe client
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16',
 });
 
+// In a real implementation, you'd have Stripe set up
+const SUBSCRIPTION_PLANS = {
+  FREE: 'free',
+  PREMIUM: 'premium',
+};
+
 export const subscriptionRoutes = async (
   fastify: FastifyInstance,
   options: FastifyPluginOptions
 ) => {
-  // Check subscription status
+  // Get user subscription status
   fastify.get('/subscription/status', {
     preValidation: [verifyAuth],
   }, async (request, reply) => {
     try {
       const userId = request.userId;
       
-      // In a real implementation, you'd query the database for subscription status
-      // and potentially validate with Stripe
+      // In a real implementation, you'd fetch subscription status from database
+      // For now, let's return placeholder data
       
-      // For now, return placeholder data
       return {
         status: 'success',
         data: {
           userId,
-          isPremium: false,
-          planType: 'free',
-          limits: {
-            dailySearches: 2,
-            remainingSearches: 2,
-            resetAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+          plan: SUBSCRIPTION_PLANS.FREE, // Default to free plan
+          limitRemaining: 2, // Daily request limit
+          validUntil: null, // No expiration for free plan
+          features: {
+            unlimitedIdeas: false,
+            fullCalendar: false,
+            dragAndDrop: false,
           },
         },
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to fetch subscription status',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to fetch subscription status')
+      );
     }
   });
 

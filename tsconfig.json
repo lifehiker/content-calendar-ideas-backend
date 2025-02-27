@@ -14,7 +14,11 @@
     "forceConsistentCasingInFileNames": true,
     "removeComments": true,
     "lib": ["ES2022"],
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]

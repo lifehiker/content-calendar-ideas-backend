@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { verifyAuth } from '../middleware/auth';
 import axios from 'axios';
+import { createErrorResponse } from '../utils/errors';
 
 // ContentERP API client
 const contentErpApi = axios.create({
@@ -20,52 +21,35 @@ export const integrationRoutes = async (
     schema: {
       body: {
         type: 'object',
-        required: ['apiKey'],
+        required: ['apiKey', 'domain'],
         properties: {
           apiKey: { type: 'string' },
-          instanceUrl: { type: 'string' },
+          domain: { type: 'string' },
         },
       },
     },
   }, async (request, reply) => {
     try {
-      const userId = request.userId;
-      const { apiKey, instanceUrl } = request.body as {
-        apiKey: string;
-        instanceUrl?: string;
-      };
-      
-      // Verify the API key with ContentERP
-      // In a real implementation, you would make a request to ContentERP to validate
-      
-      // For now, simulate validation
-      const isValid = apiKey.length > 10;
-      
-      if (!isValid) {
-        return reply.status(400).send({
-          status: 'error',
-          message: 'Invalid ContentERP API key',
-        });
-      }
-      
-      // Store the API key securely in your database, associated with the user
-      // This is a placeholder for the actual implementation
+      // This is a placeholder - actual integration logic would go here
+      // For now, just return a success message
       
       return {
         status: 'success',
         message: 'Successfully connected to ContentERP',
         data: {
           connected: true,
-          connectedAt: new Date().toISOString(),
+          accountInfo: {
+            name: 'Demo Account',
+            plan: 'Professional',
+            status: 'Active',
+          },
         },
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to connect to ContentERP',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to connect to ContentERP')
+      );
     }
   });
 

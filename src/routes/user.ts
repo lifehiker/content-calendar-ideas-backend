@@ -1,5 +1,6 @@
 import { FastifyInstance, FastifyPluginOptions } from 'fastify';
 import { verifyAuth } from '../middleware/auth';
+import { createErrorResponse } from '../utils/errors';
 
 export const userRoutes = async (
   fastify: FastifyInstance,
@@ -55,11 +56,9 @@ export const userRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to fetch user settings',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to fetch user settings')
+      );
     }
   });
 
@@ -101,11 +100,9 @@ export const userRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to update user settings',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to update user settings')
+      );
     }
   });
 
@@ -152,11 +149,9 @@ export const userRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to save calendar entries',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to save calendar entries')
+      );
     }
   });
 
@@ -179,11 +174,9 @@ export const userRoutes = async (
       };
     } catch (error) {
       request.log.error(error);
-      return reply.status(500).send({
-        status: 'error',
-        message: 'Failed to fetch calendar entries',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined,
-      });
+      return reply.status(500).send(
+        createErrorResponse(error, 'Failed to fetch calendar entries')
+      );
     }
   });
 }; 
