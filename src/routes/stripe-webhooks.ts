@@ -2,10 +2,16 @@ import { FastifyInstance } from 'fastify';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2023-08-16',
 });
 
 export default async function stripeWebhooksRoutes(fastify: FastifyInstance) {
+  // Check if MongoDB plugin is registered
+  if (!fastify.mongo) {
+    fastify.log.error('MongoDB plugin not registered. Skipping webhook routes that require database access.');
+    return;
+  }
+  
   fastify.addContentTypeParser('application/json', { parseAs: 'string' }, (req, body, done) => {
     done(null, body);
   });

@@ -1,5 +1,7 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import cors from '@fastify/cors';
+import fastifyMongodb from '@fastify/mongodb';
+import { clerkPlugin } from '@clerk/fastify';
 import env from './utils/env';
 import { healthRoutes } from './routes/health';
 import { contentRoutes } from './routes/content';
@@ -33,6 +35,39 @@ export const buildApp = async (): Promise<FastifyInstance> => {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
   });
+
+  // Register MongoDB plugin
+  if (env.MONGODB_URI) {
+    await app.register(fastifyMongodb, {
+      url: env.MONGODB_URI,
+      forceClose: true,
+    });
+    app.log.info('MongoDB plugin registered');
+  } else {
+    app.log.warn('MongoDB URI not configured. Database functionality will be unavailable.');
+  }
+
+  // Register Clerk for authentication
+  if (env.CLERK_SECRET_KEY) {
+    await app.register(clerkPlugin);
+    app.decorate('authenticate', async (request, reply) => {
+      try {
+        // This will throw an error if the request is not authenticated
+        await request.authenticate();
+      } catch (error) {
+        reply.code(401).send({ error: 'Unauthorized' });
+      }
+    });
+    app.log.info('Clerk authentication plugin registered');
+  } else {
+    app.log.warn('Clerk Secret Key not configured. Authentication will be unavailable.');
+    // Add a dummy authenticate method for development
+    app.decorate('authenticate', (request, reply, done) => {
+      // In development, add a dummy user to the request
+      request.user = { sub: 'dev-user-id' };
+      done();
+    });
+  }
 
   // Register all route handlers
   await app.register(healthRoutes);

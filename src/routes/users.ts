@@ -1,5 +1,10 @@
 import { FastifyInstance } from 'fastify';
-import { ClerkWebhookEvent } from '@clerk/fastify';
+
+// Clerk webhook interface (simplified since we're not using the full Clerk webhook functionality yet)
+interface ClerkWebhookEvent {
+  data: any;
+  type: string;
+}
 
 const FREE_SEARCHES_PER_DAY = 2;
 
@@ -15,7 +20,34 @@ interface SubscriptionUpdateBody {
   status: 'active' | 'canceled' | 'past_due' | 'trialing';
 }
 
+// Add type augmentation for the FastifyRequest to include user property
+declare module 'fastify' {
+  interface FastifyRequest {
+    user?: {
+      sub: string;
+      [key: string]: any;
+    };
+  }
+  
+  interface FastifyInstance {
+    authenticate: any;  // Function for authentication
+    mongo: any;  // MongoDB plugin
+  }
+}
+
 export default async function userRoutes(fastify: FastifyInstance) {
+  // Skip if MongoDB is not available
+  if (!fastify.mongo) {
+    fastify.log.error('MongoDB plugin not registered. Skipping user routes that require database access.');
+    return;
+  }
+
+  // Skip if authentication is not available
+  if (!fastify.authenticate) {
+    fastify.log.error('Authentication not configured. Skipping authenticated user routes.');
+    return;
+  }
+
   // Get user subscription status
   fastify.get<{ Params: { userId: string } }>(
     '/users/:userId/subscription',
@@ -27,7 +59,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
       
       try {
         // Check if this is the current authenticated user
-        if (request.user.sub !== userId) {
+        if (request.user?.sub !== userId) {
           return reply.code(403).send({ error: 'Forbidden' });
         }
         
@@ -94,7 +126,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
       
       try {
         // Check if this is the current authenticated user
-        if (request.user.sub !== userId) {
+        if (request.user?.sub !== userId) {
           return reply.code(403).send({ error: 'Forbidden' });
         }
         
@@ -140,7 +172,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
       
       try {
         // Check if this is the current authenticated user
-        if (request.user.sub !== userId) {
+        if (request.user?.sub !== userId) {
           return reply.code(403).send({ error: 'Forbidden' });
         }
         

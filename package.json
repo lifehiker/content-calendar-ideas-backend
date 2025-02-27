@@ -23,8 +23,10 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
     "@clerk/clerk-sdk-node": "^5.1.6",
+    "@clerk/fastify": "^1.0.0",
     "@fastify/cors": "^8.3.0",
     "@fastify/env": "^4.3.0",
+    "@fastify/mongodb": "^8.0.0",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
     "fastify": "^4.24.3",
@@ -34,7 +36,7 @@
     "openai": "^4.23.0",
     "pino": "^8.16.2",
     "pino-pretty": "^10.2.3",
-    "stripe": "^13.11.0",
+    "stripe": "^13.10.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
