@@ -1,4 +1,4 @@
-import { Anthropic } from 'anthropic';
+import Anthropic from '@anthropic-ai/sdk';
 import { OpenAI } from 'openai';
 
 // Initialize LLM clients
@@ -87,13 +87,16 @@ export const generateContentIdeas = async ({
       
       // Fallback to Claude
       const claudeResponse = await claude.messages.create({
-        model: 'claude-3-5-sonnet-20240620',
-        system: CONTENT_SYSTEM_PROMPT,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ],
+        model: 'claude-3-5-sonnet-latest',
         max_tokens: 4000,
         temperature: 0.8,
+        messages: [
+          { 
+            role: 'user', 
+            content: userPrompt 
+          }
+        ],
+        system: CONTENT_SYSTEM_PROMPT,
       });
 
       const content = claudeResponse.content[0]?.text || '';

@@ -21,10 +21,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.3",
     "@clerk/clerk-sdk-node": "^5.1.6",
     "@fastify/cors": "^8.3.0",
     "@fastify/env": "^4.3.0",
-    "anthropic": "^0.19.4",
     "axios": "^1.6.2",
     "dotenv": "^16.3.1",
     "fastify": "^4.24.3",
@@ -54,6 +54,6 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": "18.x"
   }
 }
