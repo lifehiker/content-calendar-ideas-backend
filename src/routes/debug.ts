@@ -8,7 +8,14 @@ export const debugRoutes = async (
   fastify.get('/debug/ping', async (request, reply) => {
     return {
       status: 'pong',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      route: request.url,
+      requestInfo: {
+        method: request.method,
+        url: request.url,
+        hostname: request.hostname,
+        headers: request.headers
+      }
     };
   });
 

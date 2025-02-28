@@ -14,7 +14,7 @@ import { healthRoutes } from './routes/health';
 import { debugRoutes } from './routes/debug';
 
 // Server setup
-const PORT = process.env.PORT || 80;
+const PORT = process.env.PORT || 8080;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // Get CORS origins from environment
