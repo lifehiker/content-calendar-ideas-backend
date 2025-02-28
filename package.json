@@ -10,7 +10,8 @@
     "prepare": "npm run build",
     "test": "jest",
     "lint": "eslint --ext .ts src/",
-    "format": "prettier --write \"src/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\"",
+    "debug": "node -e \"console.log('Environment Debug Info:'); console.log('PORT:', process.env.PORT); console.log('NODE_ENV:', process.env.NODE_ENV); console.log('HOST:', process.env.HOST); console.log('CWD:', process.cwd()); console.log('Files in dist:', require('fs').readdirSync('./dist').join(', '));\""
   },
   "keywords": [
     "content",

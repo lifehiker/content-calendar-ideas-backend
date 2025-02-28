@@ -14,7 +14,7 @@ import { healthRoutes } from './routes/health';
 import { debugRoutes } from './routes/debug';
 
 // Server setup
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 80;
 const HOST = process.env.HOST || '0.0.0.0';
 
 // Get CORS origins from environment
@@ -89,6 +89,9 @@ const startServer = async () => {
     // Start the server
     await server.listen({ port: Number(PORT), host: HOST });
     console.log(`Server running at http://${HOST}:${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Available routes: /, /ping, /health, /api/health, /api/debug/ping, /api/debug/env, /api/debug/diag`);
+    console.log(`CORS origins: ${CORS_ORIGINS.join(', ')}`);
   } catch (err) {
     server.log.error('Failed to start server', err);
     process.exit(1);
